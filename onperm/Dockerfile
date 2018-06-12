@@ -11,6 +11,3 @@ FROM microsoft/dotnet:2.1-runtime AS runtime
 WORKDIR DataLoader
 COPY --from=build reference-architectures/data/streaming_asa/onperm/DataLoader/bin/Release/netcoreapp2.0/publish .
 ENTRYPOINT ["dotnet" , "taxi.dll"]
-# CMD [${rideConnString} ${fareConnString} "./Datafile/rideDataFile" "./Datafile/fareDataFile"]
-#ENTRYPOINT [ "taxi.exe", $rideConnString  $fareConnString  "/DataLoader/Datafile/rideDataFile"  "/DataLoader/Datafile/fareDataFile"]
- #CMD [$rideConnString,$fareConnString,"/DataLoader/Datafile/rideDataFile","/DataLoader/Datafile/fareDataFile"]

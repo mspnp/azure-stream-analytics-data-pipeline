@@ -93,20 +93,14 @@
                         string FareConnectionString,
                         string RideDataFile,
                         string FareDataFile,
-                        int MillisecondsToRun) ParseArguments(string[] args)
+                        int MillisecondsToRun) ParseArguments()
         {
-            // Do simple command line parsing so we don't need an external library
-            if (args.Length < 4)
-            {
-                throw new ArgumentException(
-                    "USAGE: DataLoader <ride-event-hub-connection-string> <fare-event-hub-connection-string> <ride-filename> <fare-filename> [number-of-seconds-to-run]");
-            }
 
-            var rideConnectionString = args[0];
-            var fareConnectionString = args[1];
-            var rideDataFile = args[2];
-            var fareDataFile = args[3]; 
-            var numberOfMillisecondsToRun = (args.Length == 5 ? int.TryParse(args[4], out int temp) ? temp : 0 : 0) * 1000;
+            var rideConnectionString = Environment.GetEnvironmentVariable("RIDE_EVENT_HUB");
+            var fareConnectionString = Environment.GetEnvironmentVariable("FARE_EVENT_HUB");
+            var rideDataFile = Environment.GetEnvironmentVariable("RIDE_DATA_FILE");
+            var fareDataFile = Environment.GetEnvironmentVariable("FARE_DATA_FILE"); 
+            var numberOfMillisecondsToRun = (int.TryParse(Environment.GetEnvironmentVariable("SECONDS_TO_RUN"), out int temp) ? temp : 0) * 1000;
 
             if (string.IsNullOrWhiteSpace(rideConnectionString))
             {
@@ -183,7 +177,7 @@
         {
             try
             {
-                var arguments = ParseArguments(args);
+                var arguments = ParseArguments();
                 var rideClient = EventHubClient.CreateFromConnectionString(
                     arguments.RideConnectionString
                 );
