@@ -95,8 +95,6 @@
                         string FareDataFile,
                         int MillisecondsToRun) ParseArguments(string[] args)
         {
-
-            Console.WriteLine(args.Length);
             // Do simple command line parsing so we don't need an external library
             if (args.Length < 4)
             {
@@ -107,7 +105,7 @@
             var rideConnectionString = args[0];
             var fareConnectionString = args[1];
             var rideDataFile = args[2];
-            var fareDataFile = args[3];
+            var fareDataFile = args[3]; 
             var numberOfMillisecondsToRun = (args.Length == 5 ? int.TryParse(args[4], out int temp) ? temp : 0 : 0) * 1000;
 
             if (string.IsNullOrWhiteSpace(rideConnectionString))

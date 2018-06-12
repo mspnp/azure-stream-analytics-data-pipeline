@@ -4,11 +4,13 @@ RUN apt-get install -y git
 RUN git clone --recursive https://github.com/mspnp/reference-architectures.git && cd reference-architectures && git checkout dockerizeclient
 WORKDIR reference-architectures/data/streaming_asa/onperm/DataLoader
 RUN dotnet build
-RUN dotnet publish -f netcoreapp2.0 -c Release
+RUN dotnet publish -f netcoreapp2.0 -c Release 
+
 
 FROM microsoft/dotnet:2.1-runtime AS runtime
 WORKDIR DataLoader
 COPY --from=build reference-architectures/data/streaming_asa/onperm/DataLoader/bin/Release/netcoreapp2.0/publish .
-CMD [$rideConnString,$fareConnString,"DataLoader/Datafile/rideDataFile","DataLoader/Datafile/fareDataFile"]
-ENTRYPOINT ["dotnet" ,"taxi.dll"]
-#CMD [$rideConnString,$fareConnString,"/DataLoader/Datafile/rideDataFile","/DataLoader/Datafile/fareDataFile"]
+ENTRYPOINT ["dotnet" , "taxi.dll"]
+# CMD [${rideConnString} ${fareConnString} "./Datafile/rideDataFile" "./Datafile/fareDataFile"]
+#ENTRYPOINT [ "taxi.exe", $rideConnString  $fareConnString  "/DataLoader/Datafile/rideDataFile"  "/DataLoader/Datafile/fareDataFile"]
+ #CMD [$rideConnString,$fareConnString,"/DataLoader/Datafile/rideDataFile","/DataLoader/Datafile/fareDataFile"]
