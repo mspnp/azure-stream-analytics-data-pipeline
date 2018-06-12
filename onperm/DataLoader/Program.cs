@@ -95,6 +95,8 @@
                         string FareDataFile,
                         int MillisecondsToRun) ParseArguments(string[] args)
         {
+
+            Console.WriteLine(args.Length);
             // Do simple command line parsing so we don't need an external library
             if (args.Length < 4)
             {
