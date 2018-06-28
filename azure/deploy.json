@@ -1,74 +1,225 @@
 {
-    "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
-    "parameters": {
-      "namespaceName": {
-        "type": "string",
-        "metadata": {
-          "description": "Name of EventHub namespace"
-        }
-      },
-      "eventhubSku": {
-        "type": "string",
-        "allowedValues": [
-          "Basic",
-          "Standard"
-        ],
-        "defaultValue": "Standard",
-        "metadata": {
-          "description": "The messaging tier for service Bus namespace"
-        }
-      },
-      "skuCapacity": {
-        "type": "int",
-        "allowedValues": [
-          1,
-          2,
-          4
-        ],
-        "defaultValue": 1,
-        "metadata": {
-          "description": "MessagingUnits for premium namespace"
-        }
-      },
-      "eventHubName": {
-        "type": "string",
-        "metadata": {
-          "description": "Name of Event Hub"
-        }
-      }
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "eventHubNamespace": {
+      "type": "string"
     },
-    "variables": {
+    "outputCosmosDatabaseAccount": {
+      "type": "string"
     },
-    "resources": [
-      {
-        "apiVersion": "2017-04-01",
-        "name": "[parameters('namespaceName')]",
-        "type": "Microsoft.EventHub/Namespaces",
-        "location": "[resourceGroup().location]",
-        "sku": {
-          "name": "[parameters('eventhubSku')]",
-          "tier": "[parameters('eventhubSku')]",
-          "capacity": "[parameters('skuCapacity')]"
-        },
-        "tags": {
-        },
-        "properties": {},
-        "resources": [
-          {
-            "apiVersion": "2017-04-01",
-            "name": "[parameters('eventHubName')]",
-            "type": "EventHubs",
-            "dependsOn": [
-              "[concat('Microsoft.EventHub/namespaces/', parameters('namespaceName'))]"
-            ],
-            "properties": {},
-            "resources": [
-            ]
-          }
-        ]
-      }
-    ],
-    "outputs": {
+    "outputCosmosDatabase": {
+      "type": "string"
+    },
+    "outputCosmosDatabaseCollection": {
+      "type": "string"
     }
-  }
+  },
+  "variables": {
+    "taxiRideEventHub": "taxi-ride",
+    "taxiRideConsumerGroup": "[concat(variables('taxiRideEventHub'), '-asa-consumer-group')]",
+    "taxiRideConsumerGroupResourceId": "[concat(resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('eventHubNamespace'), variables('taxiRideEventHub')), '/consumergroups/', variables('taxiRideConsumerGroup'))]",
+    "taxiRideSharedAccessPolicy": "[concat(variables('taxiRideEventHub'), '-asa-access-policy')]",
+    "taxiRideSharedAccessPolicyResourceId": "[concat(resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('eventHubNamespace'), variables('taxiRideEventHub')), '/authorizationRules/', variables('taxiRideSharedAccessPolicy'))]",
+    "taxiFareEventHub": "taxi-fare",
+    "taxiFareConsumerGroup": "[concat(variables('taxiFareEventHub'), '-asa-consumer-group')]",
+    "taxiFareConsumerGroupResourceId": "[concat(resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('eventHubNamespace'), variables('taxiFareEventHub')), '/consumergroups/', variables('taxiFareConsumerGroup'))]",
+    "taxiFareSharedAccessPolicy": "[concat(variables('taxiFareEventHub'), '-asa-access-policy')]",
+    "taxiFareSharedAccessPolicyResourceId": "[concat(resourceId('Microsoft.EventHub/namespaces/eventhubs', parameters('eventHubNamespace'), variables('taxiFareEventHub')), '/authorizationRules/', variables('taxiFareSharedAccessPolicy'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.EventHub/namespaces",
+      "name": "[parameters('eventHubNamespace')]",
+      "apiVersion": "2017-04-01",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard",
+        "tier": "Standard"
+      },
+      "resources": [
+        {
+          "type": "eventhubs",
+          "name": "[variables('taxiRideEventHub')]",
+          "apiVersion": "2017-04-01",
+          "properties": {
+            "messageRetentionInDays": 3,
+            "partitionCount": 8
+          },
+          "resources": [
+            {
+              "type": "consumergroups",
+              "name": "[variables('taxiRideConsumerGroup')]",
+              "apiVersion": "2017-04-01",
+              "properties": {},
+              "dependsOn": [
+                "[variables('taxiRideEventHub')]"
+              ]
+            },
+            {
+              "type": "authorizationRules",
+              "name": "[variables('taxiRideSharedAccessPolicy')]",
+              "apiVersion": "2017-04-01",
+              "properties": {
+                "rights": [
+                  "Listen",
+                  "Send"
+                ]
+              },
+              "dependsOn": [
+                "[variables('taxiRideEventHub')]"
+              ]
+            }
+          ],
+          "dependsOn": [
+            "[parameters('eventHubNamespace')]"
+          ]
+        },
+        {
+          "type": "eventhubs",
+          "name": "[variables('taxiFareEventHub')]",
+          "apiVersion": "2017-04-01",
+          "properties": {
+            "messageRetentionInDays": 3,
+            "partitionCount": 8
+          },
+          "resources": [
+            {
+              "type": "consumergroups",
+              "name": "[variables('taxiFareConsumerGroup')]",
+              "apiVersion": "2017-04-01",
+              "properties": {},
+              "dependsOn": [
+                "[variables('taxiFareEventHub')]"
+              ]
+            },
+            {
+              "type": "authorizationRules",
+              "name": "[variables('taxiFareSharedAccessPolicy')]",
+              "apiVersion": "2017-04-01",
+              "properties": {
+                "rights": [
+                  "Listen",
+                  "Send"
+                ]
+              },
+              "dependsOn": [
+                "[variables('taxiFareEventHub')]"
+              ]
+            }
+          ],
+          "dependsOn": [
+            "[parameters('eventHubNamespace')]"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Microsoft.StreamAnalytics/streamingjobs",
+      "name": "taxi-asa-job",
+      "apiVersion": "2016-03-01",
+      "location": "West US",
+      "properties": {
+        "sku": {
+          "name": "Standard"
+        },
+        "eventsOutOfOrderPolicy": "Adjust",
+        "outputErrorPolicy": "Stop",
+        "eventsOutOfOrderMaxDelayInSeconds": 900,
+        "eventsLateArrivalMaxDelayInSeconds": 1805,
+        "dataLocale": "en-US",
+        "compatibilityLevel": "1.1",
+        "inputs": [
+          {
+            "name": "TaxiRide",
+            "properties": {
+              "type": "Stream",
+              "datasource": {
+                "type": "Microsoft.ServiceBus/EventHub",
+                "properties": {
+                  "eventHubName": "[variables('taxiRideEventHub')]",
+                  "consumerGroupName": "[variables('taxiRideConsumerGroup')]",
+                  "serviceBusNamespace": "[parameters('eventHubNamespace')]",
+                  "sharedAccessPolicyName": "[variables('taxiRideSharedAccessPolicy')]",
+                  "sharedAccessPolicyKey": "[listKeys(variables('taxiRideSharedAccessPolicyResourceId'), '2017-04-01').primaryKey]"
+                }
+              },
+              "compression": {
+                "type": "None"
+              },
+              "serialization": {
+                "type": "Json",
+                "properties": {
+                  "encoding": "UTF8"
+                }
+              }
+            }
+          },
+          {
+            "name": "TaxiFare",
+            "properties": {
+              "type": "Stream",
+              "datasource": {
+                "type": "Microsoft.ServiceBus/EventHub",
+                "properties": {
+                  "eventHubName": "[variables('taxiFareEventHub')]",
+                  "consumerGroupName": "[variables('taxiFareConsumerGroup')]",
+                  "serviceBusNamespace": "[parameters('eventHubNamespace')]",
+                  "sharedAccessPolicyName": "[variables('taxiFareSharedAccessPolicy')]",
+                  "sharedAccessPolicyKey": "[listKeys(variables('taxiFareSharedAccessPolicyResourceId'), '2017-04-01').primaryKey]"
+                }
+              },
+              "compression": {
+                "type": "None"
+              },
+              "serialization": {
+                "type": "Json",
+                "properties": {
+                  "encoding": "UTF8"
+                }
+              }
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "name": "TaxiDrain",
+            "properties": {
+              "datasource": {
+                "type": "Microsoft.Storage/DocumentDB",
+                "properties": {
+                  "accountId": "[parameters('outputCosmosDatabaseAccount')]",
+                  "accountKey": "[listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('outputCosmosDatabaseAccount')), '2015-04-08').primaryMasterKey]",
+                  "database": "[parameters('outputCosmosDatabase')]",
+                  "collectionNamePattern": "[parameters('outputCosmosDatabaseCollection')]",
+                  "partitionKey": null,
+                  "documentId": "WindowTime"
+                }
+              },
+              "serialization": {
+                "type": "Json",
+                "properties": {
+                  "format": "LineSeparated",
+                  "encoding": "UTF8"
+                }
+              }
+            }
+          }
+        ],
+        "transformation": {
+          "name": "Transformation",
+          "properties": {
+            "streamingUnits": 60,
+            "query": "WITH\r\nStep1 AS (\r\n    SELECT PartitionId,\r\n           Medallion,\r\n           HackLicense,\r\n           VendorId,\r\n           PickupTime,\r\n           TripDistanceInMiles\r\n    FROM [TaxiRide] PARTITION BY PartitionId\r\n),\r\nStep2 AS (\r\n    SELECT PartitionId,\r\n           Medallion,\r\n           HackLicense,\r\n           VendorId,\r\n           PickupTime,\r\n           TipAmount\r\n    FROM [TaxiFare] PARTITION BY PartitionId\r\n),\r\nStep3 AS (\r\n  SELECT tr.PartitionId AS TaxiRidePartitionId,\r\n         tf.PartitionId AS TaxiFarePartitionId,\r\n         tr.Medallion,\r\n         tr.HackLicense,\r\n         tr.VendorId,\r\n         tr.PickupTime,\r\n         tr.TripDistanceInMiles,\r\n         tf.TipAmount\r\n    FROM [Step1] tr\r\n    JOIN [Step2] tf\r\n      ON tr.Medallion = tf.Medallion\r\n     AND tr.HackLicense = tf.HackLicense\r\n     AND tr.VendorId = tf.VendorId\r\n     AND tr.PickupTime = tf.PickupTime\r\n     AND tr.PartitionId = tf.PartitionId\r\n     AND DATEDIFF(minute, tr, tf) BETWEEN 0 AND 15\r\n)\r\n\r\nSELECT System.Timestamp AS WindowTime,\r\n       SUM(tr.TipAmount) / SUM(tr.TripDistanceInMiles) AS AverageTipPerMile\r\n  INTO [TaxiDrain]\r\n  FROM [Step3] tr\r\n  GROUP BY HoppingWindow(Duration(minute, 5), Hop(minute, 1))"
+          }
+        }
+      },
+      "dependsOn": [
+        "[variables('taxiRideSharedAccessPolicyResourceId')]",
+        "[variables('taxiFareSharedAccessPolicyResourceId')]",
+        "[variables('taxiRideConsumerGroupResourceId')]",
+        "[variables('taxiFareConsumerGroupResourceId')]"
+      ]
+    }
+  ]
+}
