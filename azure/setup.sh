@@ -41,4 +41,4 @@ az cosmosdb collection create --collection-name $cosmosDataBaseCollection --name
 
 echo "creating asa job"
 # Create 2 event hub , one storage account and a asa job
-az group deployment create --resource-group $resourceGroup --template-file ./deploy.json --parameters eventHubNamespace=$eventHubNamespace outputCosmosDatabaseAccount=$cosmosDatabaseAccount outputCosmosDatabase=$cosmosDatabase outputCosmosDatabaseCollection=$cosmosDataBaseCollection
+az group deployment create --resource-group $resourceGroup --template-file ./deployresources.json --parameters eventHubNamespace=$eventHubNamespace outputCosmosDatabaseAccount=$cosmosDatabaseAccount outputCosmosDatabase=$cosmosDatabase outputCosmosDatabaseCollection=$cosmosDataBaseCollection
