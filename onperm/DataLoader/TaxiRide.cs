@@ -83,12 +83,18 @@ namespace taxi
                 ride.PickupLat = float.TryParse(tokens[11], out result) ? result : 0.0f;
                 ride.DropoffLon = float.TryParse(tokens[12], out result) ? result : 0.0f;
                 ride.DropoffLat = float.TryParse(tokens[13], out result) ? result : 0.0f;
+                ride.CsvString = line;
                 return ride;
             }
             catch (Exception ex)
             {
                 throw new ArgumentException($"Invalid record: {line}", ex);
             }
+        }
+
+        public override string GetJsonString()
+        {
+            return JsonConvert.SerializeObject(this);
         }
     }
 }

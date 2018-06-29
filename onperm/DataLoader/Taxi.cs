@@ -26,5 +26,13 @@ namespace taxi
         {
             get => $"{Medallion}_{HackLicense}_{VendorId}";
         }
+
+        [JsonIgnore]
+        public string CsvString { get; set; }
+
+        public virtual string GetJsonString()
+        {
+            return "";
+        }
     }
 }
