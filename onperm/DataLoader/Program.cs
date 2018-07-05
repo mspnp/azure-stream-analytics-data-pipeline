@@ -17,9 +17,11 @@
     class Program
     {
         private static async Task ReadData<T>(ICollection<string> pathList, Func<string, T> factory,
-            ObjectPool<EventHubClient> pool, int randomSeed, AsyncConsole console, CancellationToken cancellationToken)
+            ObjectPool<EventHubClient> pool, int randomSeed, AsyncConsole console, CancellationToken cancellationToken, int waittime)
             where T : Taxi
         {
+
+
             if (pathList == null)
             {
                 throw new ArgumentNullException(nameof(pathList));
@@ -38,6 +40,12 @@
             if (console == null)
             {
                 throw new ArgumentNullException(nameof(console));
+            }
+
+            if (waittime > 0)
+            {
+                TimeSpan span = TimeSpan.FromMilliseconds(waittime);
+                await Task.Delay(span);
             }
 
             string typeName = typeof(T).Name;
@@ -118,13 +126,17 @@
                         string FareConnectionString,
                         ICollection<String> RideDataFiles,
                         ICollection<String> TripDataFiles,
-                        int MillisecondsToRun) ParseArguments()
+                        int MillisecondsToRun,
+                        int MillisecondsToLead,
+                        bool sendRideDataFirst) ParseArguments()
         {
 
             var rideConnectionString = Environment.GetEnvironmentVariable("RIDE_EVENT_HUB");
             var fareConnectionString = Environment.GetEnvironmentVariable("FARE_EVENT_HUB");
             var rideDataFilePath = Environment.GetEnvironmentVariable("RIDE_DATA_FILE_PATH");
-            var numberOfMillisecondsToRun = (int.TryParse(Environment.GetEnvironmentVariable("SECONDS_TO_RUN"), out int temp) ? temp : 0) * 1000;
+            var numberOfMillisecondsToRun = (int.TryParse(Environment.GetEnvironmentVariable("SECONDS_TO_RUN"), out int outputSecondToRun) ? outputSecondToRun : 0) * 1000;
+            var numberOfMillisecondsToLead = (int.TryParse(Environment.GetEnvironmentVariable("MINUTES_TO_LEAD"), out int outputMinutesToLead) ? outputMinutesToLead : 0) * 60000;
+            var pushRideDataFirst = bool.TryParse(Environment.GetEnvironmentVariable("PUSH_RIDE_DATA_FIRST"), out Boolean outputPushRideDataFirst) ? outputPushRideDataFirst : false;
 
             if (string.IsNullOrWhiteSpace(rideConnectionString))
             {
@@ -177,7 +189,7 @@
                 throw new ArgumentException($"fare data files at {rideDataFilePath} does not exist");
             }
 
-            return (rideConnectionString, fareConnectionString, rideDataFiles, fareDataFiles, numberOfMillisecondsToRun);
+            return (rideConnectionString, fareConnectionString, rideDataFiles, fareDataFiles, numberOfMillisecondsToRun, numberOfMillisecondsToLead, pushRideDataFirst);
         }
 
 
@@ -251,13 +263,38 @@
                 var rideClientPool = new ObjectPool<EventHubClient>(() => EventHubClient.CreateFromConnectionString(arguments.RideConnectionString), 100);
                 var fareClientPool = new ObjectPool<EventHubClient>(() => EventHubClient.CreateFromConnectionString(arguments.FareConnectionString), 100);
 
+
+                var numberOfMillisecondsToLead = arguments.MillisecondsToLead;
+                var pushRideDataFirst = arguments.sendRideDataFirst;
+
+                var rideTaskWaitTime = 0;
+                var fareTaskWaitTime = 0;
+
+                if (numberOfMillisecondsToLead > 0)
+                {
+                    if (!pushRideDataFirst)
+                    {
+                        rideTaskWaitTime = numberOfMillisecondsToLead;
+                    }
+                    else
+                    {
+                        fareTaskWaitTime = numberOfMillisecondsToLead;
+                    }
+                }
+
+
                 var rideTask = ReadData<TaxiRide>(arguments.RideDataFiles,
-                    TaxiRide.FromString, rideClientPool, 100, console, cts.Token);
+                                        TaxiRide.FromString, rideClientPool, 100, console, cts.Token,rideTaskWaitTime);
+
                 var fareTask = ReadData<TaxiFare>(arguments.TripDataFiles,
-                    TaxiFare.FromString, fareClientPool, 200, console, cts.Token);
+                    TaxiFare.FromString, fareClientPool, 200, console, cts.Token,fareTaskWaitTime);
+
+
                 await Task.WhenAll(rideTask, fareTask, console.WriterTask);
 
                 Console.WriteLine("Data generation complete");
+
+
             }
             catch (ArgumentException ae)
             {
