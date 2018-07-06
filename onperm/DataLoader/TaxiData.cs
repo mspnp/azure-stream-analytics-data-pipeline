@@ -1,4 +1,4 @@
-namespace taxi
+namespace Taxi
 {
     using System;
     using System.Globalization;
@@ -6,9 +6,9 @@ namespace taxi
     using Newtonsoft.Json.Serialization;
 
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public abstract class Taxi
+    public abstract class TaxiData
     {
-        public Taxi()
+        public TaxiData()
         {
         }
 
@@ -28,11 +28,22 @@ namespace taxi
         }
 
         [JsonIgnore]
-        public string CsvString { get; set; }
+        protected string CsvString { get; set; }
 
-        public virtual string GetJsonString()
+        public string GetData(DataFormat dataFormat)
         {
-            return "";
+            if (dataFormat == DataFormat.Csv)
+            {
+                return CsvString;
+            }
+            else if (dataFormat == DataFormat.Json)
+            {
+                return JsonConvert.SerializeObject(this);
+            }
+            else
+            {
+                throw new ArgumentException($"Invalid DataFormat: {dataFormat}");
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace taxi
+﻿namespace Taxi
 {
     using System;
     using System.Collections.Concurrent;
@@ -17,8 +17,9 @@
     class Program
     {
         private static async Task ReadData<T>(ICollection<string> pathList, Func<string, T> factory,
-            ObjectPool<EventHubClient> pool, int randomSeed, AsyncConsole console, CancellationToken cancellationToken, int waittime)
-            where T : Taxi
+            ObjectPool<EventHubClient> pool, int randomSeed, AsyncConsole console,
+            CancellationToken cancellationToken, int waittime, DataFormat dataFormat)
+            where T : TaxiData
         {
 
 
@@ -64,7 +65,7 @@
                     using (var client = pool.GetObject())
                     {
                         return client.Value.SendAsync(new EventData(Encoding.UTF8.GetBytes(
-                            JsonConvert.SerializeObject(t))), t.PartitionKey);
+                            t.GetData(dataFormat))), t.PartitionKey);
                     }
                 },
                 new ExecutionDataflowBlockOptions
@@ -83,7 +84,7 @@
 
             long messages = 0;
 
-            // iterate through the path list and act on each file from here on 
+            // iterate through the path list and act on each file from here on
             foreach (var path in pathList)
             {
                 ZipArchive archive = new ZipArchive(
@@ -106,7 +107,7 @@
                             await buffer.SendAsync(factory(line)).ConfigureAwait(false);
                             if (++messages % 10000 == 0)
                             {
-                                // random delay every 10000 messages are buffered ??     
+                                // random delay every 10000 messages are buffered ??
                                 await Task.Delay(random.Next(100, 1000))
                                     .ConfigureAwait(false);
                                 await console.WriteLine($"Created {messages} records for {typeName}").ConfigureAwait(false);
@@ -234,7 +235,7 @@
             }
         }
 
-        //  start of the read task 
+        //  start of the read task
         public static async Task<int> Main(string[] args)
         {
             try
@@ -284,17 +285,16 @@
 
 
                 var rideTask = ReadData<TaxiRide>(arguments.RideDataFiles,
-                                        TaxiRide.FromString, rideClientPool, 100, console, cts.Token,rideTaskWaitTime);
+                                        TaxiRide.FromString, rideClientPool, 100, console, cts.Token,
+                                        rideTaskWaitTime, DataFormat.Json);
 
                 var fareTask = ReadData<TaxiFare>(arguments.TripDataFiles,
-                    TaxiFare.FromString, fareClientPool, 200, console, cts.Token,fareTaskWaitTime);
+                    TaxiFare.FromString, fareClientPool, 200, console, cts.Token,
+                    fareTaskWaitTime, DataFormat.Csv);
 
 
                 await Task.WhenAll(rideTask, fareTask, console.WriterTask);
-
                 Console.WriteLine("Data generation complete");
-
-
             }
             catch (ArgumentException ae)
             {

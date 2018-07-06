@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Azure.EventHubs;
 
-namespace taxi
+namespace Taxi
 {
     public static class StreamReaderExtensions
     {

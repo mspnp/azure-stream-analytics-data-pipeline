@@ -1,4 +1,4 @@
-namespace taxi
+namespace Taxi
 {
     using System;
     using System.Globalization;
@@ -6,7 +6,7 @@ namespace taxi
     using Newtonsoft.Json.Serialization;
 
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class TaxiFare : Taxi
+    public class TaxiFare : TaxiData
 
     {
         public TaxiFare()
@@ -75,11 +75,6 @@ namespace taxi
             {
                 throw new ArgumentException($"Invalid record: {line}", ex);
             }
-        }
-
-        public override string GetJsonString()
-        {
-            return JsonConvert.SerializeObject(this);
         }
     }
 }
