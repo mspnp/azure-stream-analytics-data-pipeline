@@ -21,6 +21,9 @@ namespace Taxi
         [JsonProperty]
         public string VendorId { get; set; }
 
+        [JsonProperty]
+        public DateTimeOffset PickupTime { get; set; }
+
         [JsonIgnore]
         public string PartitionKey
         {

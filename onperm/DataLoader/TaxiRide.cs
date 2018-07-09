@@ -20,9 +20,6 @@ namespace Taxi
         public string StoreAndForwardFlag { get; set; }
 
         [JsonProperty]
-        public DateTimeOffset PickupTime { get; set; }
-
-        [JsonProperty]
         public DateTimeOffset DropoffTime { get; set; }
 
         [JsonProperty]
@@ -60,6 +57,7 @@ namespace Taxi
             }
 
             var ride = new TaxiRide();
+            ride.CsvString = line;
             try
             {
                 ride.Medallion = long.Parse(tokens[0]);
@@ -70,11 +68,11 @@ namespace Taxi
                 ride.PickupTime = DateTimeOffset.ParseExact(
                     tokens[5], "yyyy-MM-dd HH:mm:ss",
                     CultureInfo.InvariantCulture,
-                    DateTimeStyles.AssumeLocal);
+                    DateTimeStyles.AssumeUniversal);
                 ride.DropoffTime = DateTimeOffset.ParseExact(
                     tokens[6], "yyyy-MM-dd HH:mm:ss",
                     CultureInfo.InvariantCulture,
-                    DateTimeStyles.AssumeLocal);
+                    DateTimeStyles.AssumeUniversal);
                 ride.PassengerCount = int.Parse(tokens[7]);
                 ride.TripTimeInSeconds = float.Parse(tokens[8]);
                 ride.TripDistanceInMiles = float.Parse(tokens[9]);
@@ -83,7 +81,6 @@ namespace Taxi
                 ride.PickupLat = float.TryParse(tokens[11], out result) ? result : 0.0f;
                 ride.DropoffLon = float.TryParse(tokens[12], out result) ? result : 0.0f;
                 ride.DropoffLat = float.TryParse(tokens[13], out result) ? result : 0.0f;
-                ride.CsvString = line;
                 return ride;
             }
             catch (Exception ex)

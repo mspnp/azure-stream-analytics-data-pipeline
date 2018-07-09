@@ -14,10 +14,6 @@ namespace Taxi
         }
 
         [JsonProperty]
-
-        public DateTimeOffset PickupTime { get; set; }
-
-        [JsonProperty]
         public string PaymentType { get; set; }
 
         [JsonProperty]
@@ -51,25 +47,25 @@ namespace Taxi
                 throw new ArgumentException($"Invalid record: {line}");
             }
 
-            var ride = new TaxiFare();
+            var fare = new TaxiFare();
+            fare.CsvString = line;
             try
             {
-                ride.Medallion = long.Parse(tokens[0]);
-                ride.HackLicense = long.Parse(tokens[1]);
-                ride.VendorId = tokens[2];
-                ride.PickupTime = DateTimeOffset.ParseExact(
+                fare.Medallion = long.Parse(tokens[0]);
+                fare.HackLicense = long.Parse(tokens[1]);
+                fare.VendorId = tokens[2];
+                fare.PickupTime = DateTimeOffset.ParseExact(
                     tokens[3], "yyyy-MM-dd HH:mm:ss",
                     CultureInfo.InvariantCulture,
-                    DateTimeStyles.AssumeLocal);
-                ride.PaymentType = tokens[4];
-                ride.FareAmount = float.TryParse(tokens[5], out float result) ? result : 0.0f;
-                ride.Surcharge = float.TryParse(tokens[6], out result) ? result : 0.0f;
-                ride.MTATax = float.TryParse(tokens[7], out result) ? result : 0.0f;
-                ride.TipAmount = float.TryParse(tokens[8], out result) ? result : 0.0f;
-                ride.TollsAmount = float.TryParse(tokens[9], out result) ? result : 0.0f;
-                ride.TotalAmount = float.TryParse(tokens[10], out result) ? result : 0.0f;
-                ride.CsvString = line;
-                return ride;
+                    DateTimeStyles.AssumeUniversal);
+                fare.PaymentType = tokens[4];
+                fare.FareAmount = float.TryParse(tokens[5], out float result) ? result : 0.0f;
+                fare.Surcharge = float.TryParse(tokens[6], out result) ? result : 0.0f;
+                fare.MTATax = float.TryParse(tokens[7], out result) ? result : 0.0f;
+                fare.TipAmount = float.TryParse(tokens[8], out result) ? result : 0.0f;
+                fare.TollsAmount = float.TryParse(tokens[9], out result) ? result : 0.0f;
+                fare.TotalAmount = float.TryParse(tokens[10], out result) ? result : 0.0f;
+                return fare;
             }
             catch (Exception ex)
             {
