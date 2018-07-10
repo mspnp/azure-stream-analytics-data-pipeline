@@ -31,13 +31,17 @@ namespace Taxi
         }
 
         [JsonIgnore]
+        protected string CsvHeader { get; set; }  
+
+
+        [JsonIgnore]
         protected string CsvString { get; set; }
 
         public string GetData(DataFormat dataFormat)
         {
             if (dataFormat == DataFormat.Csv)
             {
-                return CsvString;
+                return $"{CsvHeader}\r\n{CsvString}";
             }
             else if (dataFormat == DataFormat.Json)
             {

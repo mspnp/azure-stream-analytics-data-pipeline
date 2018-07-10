@@ -43,7 +43,7 @@ namespace Taxi
         [JsonProperty]
         public float DropoffLat { get; set; }
 
-        public static TaxiRide FromString(string line)
+        public static TaxiRide FromString(string line,string header)
         {
             if (string.IsNullOrWhiteSpace(line))
             {
@@ -58,6 +58,7 @@ namespace Taxi
 
             var ride = new TaxiRide();
             ride.CsvString = line;
+            ride.CsvHeader = header;
             try
             {
                 ride.Medallion = long.Parse(tokens[0]);

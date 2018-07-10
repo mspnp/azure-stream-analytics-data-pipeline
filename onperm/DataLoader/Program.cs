@@ -16,7 +16,7 @@
 
     class Program
     {
-        private static async Task ReadData<T>(ICollection<string> pathList, Func<string, T> factory,
+        private static async Task ReadData<T>(ICollection<string> pathList, Func<string,string, T> factory,
             ObjectPool<EventHubClient> pool, int randomSeed, AsyncConsole console,
             CancellationToken cancellationToken, int waittime, DataFormat dataFormat)
             where T : TaxiData
@@ -95,6 +95,9 @@
                 {
                     using (var reader = new StreamReader(entry.Open()))
                     {
+
+                        var header = reader.ReadLines()
+                            .First();
                         // Start consumer
                         var lines = reader.ReadLines()
                              .Skip(1);
@@ -104,7 +107,7 @@
                         foreach (var line in lines)
                         {
 
-                            await buffer.SendAsync(factory(line)).ConfigureAwait(false);
+                            await buffer.SendAsync(factory(line,header)).ConfigureAwait(false);
                             if (++messages % 10000 == 0)
                             {
                                 // random delay every 10000 messages are buffered ??

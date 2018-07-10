@@ -34,7 +34,7 @@ namespace Taxi
         [JsonProperty]
         public float TotalAmount { get; set; }
 
-        public static TaxiFare FromString(string line)
+        public static TaxiFare FromString(string line,string header)
         {
             if (string.IsNullOrWhiteSpace(line))
             {
@@ -49,6 +49,7 @@ namespace Taxi
 
             var fare = new TaxiFare();
             fare.CsvString = line;
+            fare.CsvHeader = header;
             try
             {
                 fare.Medallion = long.Parse(tokens[0]);
