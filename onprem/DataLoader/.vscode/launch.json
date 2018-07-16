@@ -13,23 +13,15 @@
            "args": [],
            "cwd": "${workspaceRoot}",
            "stopAtEntry": false,
-           "console": "internalConsole"
+           "console": "internalConsole",
+           "env": {
+            "RIDE_EVENT_HUB": "",
+            "FARE_EVENT_HUB": "",
+            "RIDE_DATA_FILE_PATH": "",
+            "MINUTES_TO_LEAD": "",
+            "PUSH_RIDE_DATA_FIRST": ""
+           }
        },
-        {
-            "name": ".NET Core Launch (console)",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build",
-            // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/bin/Debug/netcoreapp2.0/taxi.dll",
-            "args": [
-            ],
-            "cwd": "${workspaceFolder}",
-            // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
-            "console": "internalConsole",
-            "stopAtEntry": false,
-            "internalConsoleOptions": "openOnSessionStart"
-        },
         {
             "name": ".NET Core Attach",
             "type": "coreclr",
