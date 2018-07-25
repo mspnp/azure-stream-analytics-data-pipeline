@@ -115,6 +115,16 @@
       ]
     },
     {
+      "name": "[parameters('outputCosmosDatabaseAccount')]",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2015-04-08",
+      "location": "[resourceGroup().location]",
+      "kind": "GlobalDocumentDB",
+      "properties": {
+        "databaseAccountOfferType": "Standard"
+      }
+    },
+    {
       "type": "Microsoft.StreamAnalytics/streamingjobs",
       "name": "taxi-asa-job",
       "apiVersion": "2016-03-01",
@@ -219,7 +229,8 @@
         "[variables('taxiRideSharedAccessPolicyResourceId')]",
         "[variables('taxiFareSharedAccessPolicyResourceId')]",
         "[variables('taxiRideConsumerGroupResourceId')]",
-        "[variables('taxiFareConsumerGroupResourceId')]"
+        "[variables('taxiFareConsumerGroupResourceId')]",
+        "[concat('Microsoft.DocumentDb/databaseAccounts/', parameters('outputCosmosDatabaseAccount'))]"
       ]
     }
   ]
