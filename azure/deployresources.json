@@ -128,7 +128,7 @@
       "type": "Microsoft.StreamAnalytics/streamingjobs",
       "name": "taxi-asa-job",
       "apiVersion": "2016-03-01",
-      "location": "West US",
+      "location": "[resourceGroup().location]",
       "properties": {
         "sku": {
           "name": "Standard"
