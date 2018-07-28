@@ -232,6 +232,593 @@
         "[variables('taxiFareConsumerGroupResourceId')]",
         "[concat('Microsoft.DocumentDb/databaseAccounts/', parameters('outputCosmosDatabaseAccount'))]"
       ]
+    },
+    {
+      "name": "Taxi-Rides-Dashboard",
+      "type": "Microsoft.Portal/dashboards",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "hidden-title": "TaxiRidesDashboard"
+      },
+      "apiVersion": "2015-08-01-preview",
+      "properties": {
+        "lenses": {
+          "0": {
+            "order": 0,
+            "parts": {
+              "0": {
+                "position": {
+                  "x": 0,
+                  "y": 0,
+                  "colSpan": 6,
+                  "rowSpan": 4
+                },
+                "metadata": {
+                  "inputs": [
+                    {
+                      "name": "options",
+                      "value": {
+                        "charts": [
+                          {
+                            "metrics": [
+                              {
+                                "name": "EHINMSGS",
+                                "resourceMetadata": {
+                                  "resourceId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/', resourceGroup().name, '/providers/Microsoft.EventHub/namespaces/', parameters('eventHubNamespace'))]"
+                                },
+                                "aggregationType": 4
+                              },
+                              {
+                                "name": "EHOUTMSGS",
+                                "resourceMetadata": {
+                                  "resourceId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/', resourceGroup().name, '/providers/Microsoft.EventHub/namespaces/', parameters('eventHubNamespace'))]"
+                                },
+                                "aggregationType": 4
+                              }
+                            ],
+                            "title": "Event Hubs: Incoming and Outgoing Messages",
+                            "itemDataModel": {
+                              "id": "3CF0CCC0-0F55-45A6-922E-F0F9C5AE0ECB",
+                              "chartHeight": 1,
+                              "metrics": [
+                                {
+                                  "id": {
+                                    "resourceDefinition": {
+                                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/', resourceGroup().name, '/providers/Microsoft.EventHub/namespaces/', parameters('eventHubNamespace'))]"
+                                    },
+                                    "name": {
+                                      "id": "EHINMSGS",
+                                      "displayName": "Incoming Messages"
+                                    },
+                                    "dataSource": 1,
+                                    "namespace": {
+                                      "name": "microsoft.eventhub/namespaces"
+                                    }
+                                  },
+                                  "metricAggregation": 1,
+                                  "color": "#47BDF5"
+                                },
+                                {
+                                  "id": {
+                                    "resourceDefinition": {
+                                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/', resourceGroup().name, '/providers/Microsoft.EventHub/namespaces/', parameters('eventHubNamespace'))]"
+                                    },
+                                    "name": {
+                                      "id": "EHOUTMSGS",
+                                      "displayName": "Outgoing Messages"
+                                    },
+                                    "dataSource": 1,
+                                    "namespace": {
+                                      "name": "microsoft.eventhub/namespaces"
+                                    }
+                                  },
+                                  "metricAggregation": 1,
+                                  "color": "#7E58FF"
+                                }
+                              ],
+                              "priorPeriod": false,
+                              "horizontalBars": true,
+                              "showOther": false,
+                              "aggregation": 1,
+                              "percentage": false,
+                              "palette": "multiColor",
+                              "jsonDefinitionId": "771FFF64-83E4-40E8-A300-8F4C88021D8A",
+                              "filters": {
+                                "filterType": 0,
+                                "id": "59EAC188-32DD-44FD-B254-FFFA46671BD6",
+                                "OperandFilters": [],
+                                "LogicalOperator": 0
+                              },
+                              "yAxisOptions": {
+                                "options": 1
+                              },
+                              "title": "Event Hubs: Incoming and Outgoing Messages",
+                              "titleKind": "Auto"
+                            }
+                          }
+                        ],
+                        "v2charts": true,
+                        "version": 1
+                      }
+                    },
+                    {
+                      "name": "sharedTimeRange",
+                      "isOptional": true
+                    }
+                  ],
+                  "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+                  "settings": {}
+                }
+              },
+              "1": {
+                "position": {
+                  "x": 6,
+                  "y": 0,
+                  "colSpan": 6,
+                  "rowSpan": 4
+                },
+                "metadata": {
+                  "inputs": [
+                    {
+                      "name": "options",
+                      "value": {
+                        "charts": [
+                          {
+                            "metrics": [
+                              {
+                                "name": "ThrottledRequests",
+                                "resourceMetadata": {
+                                  "resourceId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/', resourceGroup().name, '/providers/Microsoft.EventHub/namespaces/', parameters('eventHubNamespace'))]"
+                                },
+                                "aggregationType": 4
+                              },
+                              {
+                                "name": "QuotaExceededErrors",
+                                "resourceMetadata": {
+                                  "resourceId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/', resourceGroup().name, '/providers/Microsoft.EventHub/namespaces/', parameters('eventHubNamespace'))]"
+                                },
+                                "aggregationType": 4
+                              }
+                            ],
+                            "title": "Event Hubs: Throttled Requests and Quota Exceeded Errors",
+                            "itemDataModel": {
+                              "id": "4B0ADDC7-C6F8-4942-8EF8-46860F6E75B6",
+                              "chartHeight": 1,
+                              "metrics": [
+                                {
+                                  "id": {
+                                    "resourceDefinition": {
+                                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/', resourceGroup().name, '/providers/Microsoft.EventHub/namespaces/', parameters('eventHubNamespace'))]"
+                                    },
+                                    "name": {
+                                      "id": "ThrottledRequests",
+                                      "displayName": "Throttled Requests. (Preview)"
+                                    },
+                                    "dataSource": 1,
+                                    "namespace": {
+                                      "name": "microsoft.eventhub/namespaces"
+                                    }
+                                  },
+                                  "metricAggregation": 1,
+                                  "color": "#47BDF5"
+                                },
+                                {
+                                  "id": {
+                                    "resourceDefinition": {
+                                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/', resourceGroup().name, '/providers/Microsoft.EventHub/namespaces/', parameters('eventHubNamespace'))]"
+                                    },
+                                    "name": {
+                                      "id": "QuotaExceededErrors",
+                                      "displayName": "Quota Exceeded Errors. (Preview)"
+                                    },
+                                    "dataSource": 1,
+                                    "namespace": {
+                                      "name": "microsoft.eventhub/namespaces"
+                                    }
+                                  },
+                                  "metricAggregation": 1,
+                                  "color": "#7E58FF"
+                                }
+                              ],
+                              "priorPeriod": false,
+                              "horizontalBars": true,
+                              "showOther": false,
+                              "aggregation": 1,
+                              "percentage": false,
+                              "palette": "multiColor",
+                              "jsonDefinitionId": "81254AC7-74E6-4D88-9E9D-98712187ED68",
+                              "filters": {
+                                "filterType": 0,
+                                "id": "FA760F3B-8F51-48E6-A39B-ECE400B8B459",
+                                "OperandFilters": [],
+                                "LogicalOperator": 0
+                              },
+                              "yAxisOptions": {
+                                "options": 1
+                              },
+                              "title": "Event Hubs: Throttled Requests and Quota Exceeded Errors",
+                              "titleKind": "Auto"
+                            }
+                          }
+                        ],
+                        "v2charts": true,
+                        "version": 1
+                      }
+                    },
+                    {
+                      "name": "sharedTimeRange",
+                      "isOptional": true
+                    }
+                  ],
+                  "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+                  "settings": {}
+                }
+              },
+              "2": {
+                "position": {
+                  "x": 0,
+                  "y": 4,
+                  "colSpan": 6,
+                  "rowSpan": 4
+                },
+                "metadata": {
+                  "inputs": [
+                    {
+                      "name": "options",
+                      "value": {
+                        "charts": [
+                          {
+                            "metrics": [
+                              {
+                                "name": "ResourceUtilization",
+                                "resourceMetadata": {
+                                  "resourceId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/', resourceGroup().name, '/providers/Microsoft.StreamAnalytics/streamingjobs/taxi-asa-job')]"
+                                },
+                                "aggregationType": 3
+                              }
+                            ],
+                            "title": "Stream Analytics: Max SU % Utilization",
+                            "itemDataModel": {
+                              "id": "C7B5B71D-2729-467B-B7DB-0567A5822281",
+                              "chartHeight": 1,
+                              "metrics": [
+                                {
+                                  "id": {
+                                    "resourceDefinition": {
+                                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/', resourceGroup().name, '/providers/Microsoft.StreamAnalytics/streamingjobs/taxi-asa-job')]"
+                                    },
+                                    "name": {
+                                      "id": "ResourceUtilization",
+                                      "displayName": "SU % Utilization"
+                                    },
+                                    "dataSource": 1,
+                                    "namespace": {
+                                      "name": "microsoft.streamanalytics/streamingjobs"
+                                    }
+                                  },
+                                  "metricAggregation": 3,
+                                  "color": "#47BDF5"
+                                }
+                              ],
+                              "priorPeriod": false,
+                              "horizontalBars": true,
+                              "showOther": false,
+                              "aggregation": 1,
+                              "percentage": false,
+                              "palette": "multiColor",
+                              "jsonDefinitionId": "A3B3621F-727C-4A6B-8606-4AE3A7353BAA",
+                              "filters": {
+                                "filterType": 0,
+                                "id": "480FEAE9-33B5-4DEC-BD7B-34BBCFCBCCC7",
+                                "OperandFilters": [],
+                                "LogicalOperator": 0
+                              },
+                              "yAxisOptions": {
+                                "options": 1
+                              },
+                              "title": "Stream Analytics: Max SU % Utilization",
+                              "titleKind": "Auto"
+                            }
+                          }
+                        ],
+                        "v2charts": true,
+                        "version": 1
+                      }
+                    },
+                    {
+                      "name": "sharedTimeRange",
+                      "isOptional": true
+                    }
+                  ],
+                  "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+                  "settings": {}
+                }
+              },
+              "3": {
+                "position": {
+                  "x": 6,
+                  "y": 4,
+                  "colSpan": 6,
+                  "rowSpan": 4
+                },
+                "metadata": {
+                  "inputs": [
+                    {
+                      "name": "options",
+                      "value": {
+                        "charts": [
+                          {
+                            "metrics": [
+                              {
+                                "name": "ConversionErrors",
+                                "resourceMetadata": {
+                                  "resourceId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/', resourceGroup().name, '/providers/Microsoft.StreamAnalytics/streamingjobs/taxi-asa-job')]"
+                                },
+                                "aggregationType": 4
+                              },
+                              {
+                                "name": "DeserializationError",
+                                "resourceMetadata": {
+                                  "resourceId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/', resourceGroup().name, '/providers/Microsoft.StreamAnalytics/streamingjobs/taxi-asa-job')]"
+                                },
+                                "aggregationType": 4
+                              },
+                              {
+                                "name": "Errors",
+                                "resourceMetadata": {
+                                  "resourceId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/', resourceGroup().name, '/providers/Microsoft.StreamAnalytics/streamingjobs/taxi-asa-job')]"
+                                },
+                                "aggregationType": 4
+                              }
+                            ],
+                            "title": "Stream Analytics: Data Conversion Errors, Deserialization Errors, and Runtime Errors",
+                            "itemDataModel": {
+                              "id": "E6DD6E8A-F2EA-438C-8935-F2C5896FBE73",
+                              "chartHeight": 1,
+                              "metrics": [
+                                {
+                                  "id": {
+                                    "resourceDefinition": {
+                                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/', resourceGroup().name, '/providers/Microsoft.StreamAnalytics/streamingjobs/taxi-asa-job')]"
+                                    },
+                                    "name": {
+                                      "id": "ConversionErrors",
+                                      "displayName": "Data Conversion Errors"
+                                    },
+                                    "dataSource": 1,
+                                    "namespace": {
+                                      "name": "microsoft.streamanalytics/streamingjobs"
+                                    }
+                                  },
+                                  "metricAggregation": 1,
+                                  "color": "#47BDF5"
+                                },
+                                {
+                                  "id": {
+                                    "resourceDefinition": {
+                                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/', resourceGroup().name, '/providers/Microsoft.StreamAnalytics/streamingjobs/taxi-asa-job')]"
+                                    },
+                                    "name": {
+                                      "id": "DeserializationError",
+                                      "displayName": "Input Deserialization Errors"
+                                    },
+                                    "dataSource": 1,
+                                    "namespace": {
+                                      "name": "microsoft.streamanalytics/streamingjobs"
+                                    }
+                                  },
+                                  "metricAggregation": 1,
+                                  "color": "#7E58FF"
+                                },
+                                {
+                                  "id": {
+                                    "resourceDefinition": {
+                                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/', resourceGroup().name, '/providers/Microsoft.StreamAnalytics/streamingjobs/taxi-asa-job')]"
+                                    },
+                                    "name": {
+                                      "id": "Errors",
+                                      "displayName": "Runtime Errors"
+                                    },
+                                    "dataSource": 1,
+                                    "namespace": {
+                                      "name": "microsoft.streamanalytics/streamingjobs"
+                                    }
+                                  },
+                                  "metricAggregation": 1,
+                                  "color": "#44F1C8"
+                                }
+                              ],
+                              "priorPeriod": false,
+                              "horizontalBars": true,
+                              "showOther": false,
+                              "aggregation": 1,
+                              "percentage": false,
+                              "palette": "multiColor",
+                              "jsonDefinitionId": "19F54BD0-3513-4B6F-9FDA-5D1D51C9937F",
+                              "filters": {
+                                "filterType": 0,
+                                "id": "063A67A3-3287-495B-8EED-913777517AA0",
+                                "OperandFilters": [],
+                                "LogicalOperator": 0
+                              },
+                              "yAxisOptions": {
+                                "options": 1
+                              },
+                              "title": "Stream Analytics: Data Conversion Errors, Deserialization Errors, and Runtime Errors",
+                              "titleKind": "Auto"
+                            }
+                          }
+                        ],
+                        "v2charts": true,
+                        "version": 1
+                      }
+                    },
+                    {
+                      "name": "sharedTimeRange",
+                      "isOptional": true
+                    }
+                  ],
+                  "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+                  "settings": {}
+                }
+              },
+              "4": {
+                "position": {
+                  "x": 0,
+                  "y": 8,
+                  "colSpan": 6,
+                  "rowSpan": 4
+                },
+                "metadata": {
+                  "inputs": [
+                    {
+                      "name": "options",
+                      "value": {
+                        "charts": [
+                          {
+                            "metrics": [
+                              {
+                                "name": "TotalRequestUnits",
+                                "resourceMetadata": {
+                                  "resourceId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/', resourceGroup().name, '/providers/Microsoft.DocumentDB/databaseAccounts/', parameters('outputCosmosDatabaseAccount'))]"
+                                },
+                                "aggregationType": 1
+                              }
+                            ],
+                            "title": "Cosmos DB: Avg Total Request Units",
+                            "itemDataModel": {
+                              "id": "329974C4-5AD4-40C9-ACE4-BD67B3C4C1A4",
+                              "chartHeight": 1,
+                              "metrics": [
+                                {
+                                  "id": {
+                                    "resourceDefinition": {
+                                      "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourcegroups/', resourceGroup().name, '/providers/Microsoft.DocumentDB/databaseAccounts/', parameters('outputCosmosDatabaseAccount'))]"
+                                    },
+                                    "name": {
+                                      "id": "TotalRequestUnits",
+                                      "displayName": "Total Request Units"
+                                    },
+                                    "dataSource": 1,
+                                    "namespace": {
+                                      "name": "microsoft.documentdb/databaseaccounts"
+                                    }
+                                  },
+                                  "metricAggregation": 4,
+                                  "color": "#47BDF5"
+                                }
+                              ],
+                              "priorPeriod": false,
+                              "horizontalBars": true,
+                              "showOther": false,
+                              "aggregation": 1,
+                              "percentage": false,
+                              "palette": "multiColor",
+                              "jsonDefinitionId": "F0F77627-9C84-4676-BEF1-8CFE580289AD",
+                              "filters": {
+                                "filterType": 0,
+                                "id": "91D04A1F-A199-4439-B026-A5803D94818F",
+                                "OperandFilters": [],
+                                "LogicalOperator": 0
+                              },
+                              "yAxisOptions": {
+                                "options": 1
+                              },
+                              "title": "Cosmos DB: Avg Total Request Units",
+                              "titleKind": "Auto"
+                            }
+                          }
+                        ],
+                        "v2charts": true,
+                        "version": 1
+                      }
+                    },
+                    {
+                      "name": "sharedTimeRange",
+                      "isOptional": true
+                    }
+                  ],
+                  "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+                  "settings": {}
+                }
+              },
+              "5": {
+                "position": {
+                  "x": 6,
+                  "y": 8,
+                  "colSpan": 6,
+                  "rowSpan": 4
+                },
+                "metadata": {
+                  "inputs": [{
+                    "name": "options",
+                    "value": {
+                      "charts": [{
+                        "metrics": [{
+                          "resourceMetadata": {
+                            "resourceId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.DocumentDB/databaseAccounts/', parameters('outputCosmosDatabaseAccount'))]"
+                          },
+                          "aggregationType": 4,
+                          "name": "Http 2xx",
+                          "unit": 0
+                        },
+                        {
+                          "resourceMetadata": {
+                            "resourceId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.DocumentDB/databaseAccounts/', parameters('outputCosmosDatabaseAccount'))]"
+                          },
+                          "aggregationType": 4,
+                          "name": "Http 3xx",
+                          "unit": 0
+                        },
+                        {
+                          "resourceMetadata": {
+                            "resourceId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.DocumentDB/databaseAccounts/', parameters('outputCosmosDatabaseAccount'))]"
+                          },
+                          "aggregationType": 4,
+                          "name": "Http 400",
+                          "unit": 0
+                        },
+                        {
+                          "resourceMetadata": {
+                            "resourceId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.DocumentDB/databaseAccounts/', parameters('outputCosmosDatabaseAccount'))]"
+                          },
+                          "aggregationType": 4,
+                          "name": "Http 401",
+                          "unit": 0
+                        }
+                        ,
+                        {
+                          "resourceMetadata": {
+                            "resourceId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.DocumentDB/databaseAccounts/', parameters('outputCosmosDatabaseAccount'))]"
+                          },
+                          "aggregationType": 4,
+                          "name": "Throttled Requests",
+                          "unit": 0
+                        }                      ],
+                        "chartType": 0,
+                        "timespan": {
+                          "relative": {
+                            "durationMs": 86400000
+                          }
+                        },
+                        "title": "Cosmos DB: HTTP Responses"
+                      }]
+                    }
+                  },
+                  {
+                    "name": "sharedTimeRange",
+                    "binding": "timeRange",
+                    "isOptional": true
+                  }],
+                  "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+                  "settings": {
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   ]
 }
