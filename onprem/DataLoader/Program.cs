@@ -16,9 +16,10 @@
 
     class Program
     {
-        private static async Task ReadData<T>(ICollection<string> pathList, Func<string,string, T> factory,
-            ObjectPool<EventHubClient> pool, int randomSeed, AsyncConsole console,
-            CancellationToken cancellationToken, int waittime, DataFormat dataFormat)
+
+        private static CancellationTokenSource cts;
+        private static async Task ReadData<T>(ICollection<string> pathList, Func<string, string, T> factory,
+            ObjectPool<EventHubClient> pool, int randomSeed, AsyncConsole console, int waittime, DataFormat dataFormat)
             where T : TaxiData
         {
 
@@ -65,13 +66,21 @@
                     using (var client = pool.GetObject())
                     {
                         return client.Value.SendAsync(new EventData(Encoding.UTF8.GetBytes(
-                            t.GetData(dataFormat))), t.PartitionKey);
+                            t.GetData(dataFormat))), t.PartitionKey).ContinueWith(
+                               async task =>
+                                {
+                                    cts.Cancel();
+                                    await console.WriteLine(task.Exception.InnerException.Message);
+                                    await console.WriteLine($"event hub client failed for {typeName}");
+                                }
+                                , TaskContinuationOptions.OnlyOnFaulted
+                            );
                     }
                 },
                 new ExecutionDataflowBlockOptions
                 {
                     BoundedCapacity = 100000,
-                    CancellationToken = cancellationToken,
+                    CancellationToken = cts.Token,
                     MaxDegreeOfParallelism = 100,
                 }
             );
@@ -84,45 +93,93 @@
 
             long messages = 0;
 
-            // iterate through the path list and act on each file from here on
-            foreach (var path in pathList)
+            List<Task> taskList = new List<Task>();
+
+            var readTask = Task.Factory.StartNew(
+                 async () =>
+                 {
+                     // iterate through the path list and act on each file from here on
+                     foreach (var path in pathList)
+                     {
+                         using (var archive = new ZipArchive(File.OpenRead(path),
+                                                     ZipArchiveMode.Read))
+                         {
+                             foreach (var entry in archive.Entries)
+                             {
+                                 using (var reader = new StreamReader(entry.Open()))
+                                 {
+
+                                     var header = reader.ReadLines()
+                                         .First();
+                                     // Start consumer
+                                     var lines = reader.ReadLines()
+                                          .Skip(1);
+
+
+                                     // for each line , send to event hub
+                                     foreach (var line in lines)
+                                     {
+                                         // proceed only if previous send operation is succesful.
+                                         // cancelation is requested in case if send fails .
+                                         if (cts.IsCancellationRequested)
+                                         {
+                                             break;
+                                         }
+                                         await buffer.SendAsync(factory(line, header)).ConfigureAwait(false);
+                                         if (++messages % 10000 == 0)
+                                         {
+                                             // random delay every 10000 messages are buffered ??
+                                             await Task.Delay(random.Next(100, 1000))
+                                                 .ConfigureAwait(false);
+                                             await console.WriteLine($"Created {messages} records for {typeName}").ConfigureAwait(false);
+                                         }
+
+                                     }
+                                 }
+
+                                 if (cts.IsCancellationRequested)
+                                 {
+                                     break;
+                                 }
+                             }
+
+                             if (cts.IsCancellationRequested)
+                             {
+                                 break;
+                             }
+                         }
+
+                         buffer.Complete();
+                         await Task.WhenAll(buffer.Completion, consumer.Completion);
+                         await console.WriteLine($"Created total {messages} records for {typeName}").ConfigureAwait(false);
+                     }
+                 }
+             ).Unwrap().ContinueWith(
+                               async task =>
+                                {
+                                    cts.Cancel();
+                                    await console.WriteLine($"failed to read files for {typeName}").ConfigureAwait(false);
+                                    await console.WriteLine(task.Exception.InnerException.Message).ConfigureAwait(false);
+                                }
+                                , TaskContinuationOptions.OnlyOnFaulted
+                            );
+
+
+            // await on consumer completion. Incase if sending is failed at any moment ,
+            // execption is thrown and caught . This is used to signal the cancel the reading operation and abort all activity further
+
+            try
             {
-                ZipArchive archive = new ZipArchive(
-                    File.OpenRead(path),
-                    ZipArchiveMode.Read);
-
-                foreach (var entry in archive.Entries)
-                {
-                    using (var reader = new StreamReader(entry.Open()))
-                    {
-
-                        var header = reader.ReadLines()
-                            .First();
-                        // Start consumer
-                        var lines = reader.ReadLines()
-                             .Skip(1);
-
-
-                        // for each line , send to event hub
-                        foreach (var line in lines)
-                        {
-
-                            await buffer.SendAsync(factory(line,header)).ConfigureAwait(false);
-                            if (++messages % 10000 == 0)
-                            {
-                                // random delay every 10000 messages are buffered ??
-                                await Task.Delay(random.Next(100, 1000))
-                                    .ConfigureAwait(false);
-                                await console.WriteLine($"Created {messages} records for {typeName}").ConfigureAwait(false);
-                            }
-                        }
-                    }
-                }
+                await Task.WhenAll(consumer.Completion, readTask);
+            }
+            catch (Exception ex)
+            {
+                cts.Cancel();
+                await console.WriteLine(ex.Message).ConfigureAwait(false);
+                await console.WriteLine($"failed to send files for {typeName}").ConfigureAwait(false);
+                throw;
             }
 
-            buffer.Complete();
-            await Task.WhenAll(buffer.Completion, consumer.Completion);
-            await console.WriteLine($"Created total {messages} records for {typeName}").ConfigureAwait(false);
         }
 
 
@@ -251,9 +308,8 @@
                     arguments.FareConnectionString
                 );
 
+                cts = arguments.MillisecondsToRun == 0 ? new CancellationTokenSource() : new CancellationTokenSource(arguments.MillisecondsToRun);
 
-                CancellationTokenSource cts = arguments.MillisecondsToRun == 0 ? new CancellationTokenSource() :
-                    new CancellationTokenSource(arguments.MillisecondsToRun);
                 Console.CancelKeyPress += (s, e) =>
                 {
                     //Console.WriteLine("Cancelling data generation");
@@ -288,20 +344,21 @@
 
 
                 var rideTask = ReadData<TaxiRide>(arguments.RideDataFiles,
-                                        TaxiRide.FromString, rideClientPool, 100, console, cts.Token,
+                                        TaxiRide.FromString, rideClientPool, 100, console,
                                         rideTaskWaitTime, DataFormat.Json);
 
                 var fareTask = ReadData<TaxiFare>(arguments.TripDataFiles,
-                    TaxiFare.FromString, fareClientPool, 200, console, cts.Token,
+                    TaxiFare.FromString, fareClientPool, 200, console,
                     fareTaskWaitTime, DataFormat.Csv);
 
 
                 await Task.WhenAll(rideTask, fareTask, console.WriterTask);
                 Console.WriteLine("Data generation complete");
             }
-            catch (ArgumentException ae)
+            catch (Exception ex)
             {
-                Console.WriteLine(ae.Message);
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("Data generation failed");
                 return 1;
             }
 
@@ -309,5 +366,3 @@
         }
     }
 }
-
-
