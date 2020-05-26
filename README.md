@@ -30,7 +30,7 @@ The deployment uses [Azure Building Blocks](https://github.com/mspnp/template-bu
 
 ### Download the source data files
 
-1. Create a directory named `DataFile` under the `data/streaming_asa` directory in the GitHub repo.
+1. Create a directory named `DataFile` in the GitHub repo.
 
 2. Open a web browser and navigate to https://uofi.app.box.com/v/NYCtaxidata/folder/2332219935.
 
@@ -43,8 +43,6 @@ The deployment uses [Azure Building Blocks](https://github.com/mspnp/template-bu
 The directory structure should look like the following:
 
 ```
-/data
-    /streaming_asa
         /DataFile
             /FOIL2013
                 trip_data_1.zip
@@ -59,12 +57,6 @@ The directory structure should look like the following:
 
     ```bash
     az login
-    ```
-
-2. Navigate to the folder `data/streaming_asa` in the GitHub repository
-
-    ```bash
-    cd data/streaming_asa
     ```
 
 2. Run the following commands to deploy the Azure resources:
@@ -126,7 +118,7 @@ The directory structure should look like the following:
         --query primaryConnectionString
     ```
 
-2. Navigate to the directory `data/streaming_asa/onprem` in the GitHub repository
+2. Navigate to the directory `/onprem` in the GitHub repository
 
 3. Update the values in the file `main.env` as follows:
 
@@ -144,7 +136,7 @@ The directory structure should look like the following:
     docker build --no-cache -t dataloader .
     ```
 
-5. Navigate back to the parent directory, `data/stream_asa`.
+5. Navigate back to the parent directory.
 
     ```bash
     cd ..
