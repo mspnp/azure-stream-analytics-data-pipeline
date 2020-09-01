@@ -1,0 +1,35 @@
+WITH
+Step1 AS (
+    SELECT PartitionId,
+           TRY_CAST(Medallion AS nvarchar(max)) AS Medallion,
+           TRY_CAST(HackLicense AS nvarchar(max)) AS HackLicense,
+           VendorId,
+           TRY_CAST(PickupTime AS datetime) AS PickupTime,
+           TripDistanceInMiles
+    FROM [TaxiRide] PARTITION BY PartitionId
+),
+Step2 AS (
+    SELECT PartitionId,
+           medallion AS Medallion,
+           hack_license AS HackLicense,
+           vendor_id AS VendorId,
+           TRY_CAST(pickup_datetime AS datetime) AS PickupTime,
+           tip_amount AS TipAmount
+    FROM [TaxiFare] PARTITION BY PartitionId
+),
+Step3 AS (
+  SELECT tr.TripDistanceInMiles,
+         tf.TipAmount
+    FROM [Step1] tr
+    PARTITION BY PartitionId
+    JOIN [Step2] tf PARTITION BY PartitionId
+      ON tr.PartitionId = tf.PartitionId
+     AND tr.PickupTime = tf.PickupTime
+     AND DATEDIFF(minute, tr, tf) BETWEEN 0 AND 15
+)
+
+SELECT System.Timestamp AS WindowTime,
+       SUM(tr.TipAmount) / SUM(tr.TripDistanceInMiles) AS AverageTipPerMile
+  INTO [TaxiDrain]
+  FROM [Step3] tr
+  GROUP BY HoppingWindow(Duration(minute, 5), Hop(minute, 1))
