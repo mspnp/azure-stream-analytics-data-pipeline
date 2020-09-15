@@ -14,15 +14,15 @@ The deployment uses [Azure Building Blocks](https://github.com/mspnp/template-bu
 
 1. Clone, fork, or download the zip file for this repository.
 
-2. Install [Azure CLI 2.0](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest).
+1. Install [Azure CLI 2.0](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest).
 
-3. Install the [Azure building blocks](https://github.com/mspnp/template-building-blocks/wiki/Install-Azure-Building-Blocks) npm package.
+1. Install the [Azure building blocks](https://github.com/mspnp/template-building-blocks/wiki/Install-Azure-Building-Blocks) npm package.
 
    ```bash
    npm install -g @mspnp/azure-building-blocks
    ```
 
-4. From a command prompt, bash prompt, or PowerShell prompt, sign into your Azure account as follows:
+1. From a command prompt, bash prompt, or PowerShell prompt, sign into your Azure account as follows:
 
    ```bash
    az login
@@ -32,11 +32,11 @@ The deployment uses [Azure Building Blocks](https://github.com/mspnp/template-bu
 
 1. Create a directory named `DataFile` in the GitHub repo.
 
-2. Open a web browser and navigate to https://uofi.app.box.com/v/NYCtaxidata/folder/2332219935.
+1. Open a web browser and navigate to https://uofi.app.box.com/v/NYCtaxidata/folder/2332219935.
 
-3. Click the **Download** button on this page to download a zip file of all the taxi data for that year.
+1. Click the **Download** button on this page to download a zip file of all the taxi data for that year.
 
-4. Extract the zip file to the `DataFile` directory.
+1. Extract the zip file to the `DataFile` directory.
 
     > This zip file contains other zip files. Don't extract the child zip files.
 
@@ -53,13 +53,7 @@ The directory structure should look like the following:
 
 ### Deploy the Azure resources
 
-1. From a shell or Windows Command Prompt, run the following command and follow the sign-in prompt:
-
-    ```bash
-    az login
-    ```
-
-2. Run the following commands to deploy the Azure resources:
+1. Run the following commands to deploy the Azure resources:
 
     ```bash
     export resourceGroup='[Resource group name]'
@@ -78,7 +72,8 @@ The directory structure should look like the following:
       eventHubNamespace=$eventHubNamespace \
       outputCosmosDatabaseAccount=$cosmosDatabaseAccount \
       outputCosmosDatabase=$cosmosDatabase \
-      outputCosmosDatabaseCollection=$cosmosDataBaseCollection
+      outputCosmosDatabaseCollection=$cosmosDataBaseCollection \
+      query='@./azure/average-tip-per-mile-pipeline.asaql'
 
     # Create a database 
     az cosmosdb database create --name $cosmosDatabaseAccount \
@@ -90,11 +85,11 @@ The directory structure should look like the following:
         --resource-group $resourceGroup
     ```
 
-3. In the Azure portal, navigate to the resource group that was created.
+1. In the Azure portal, navigate to the resource group that was created.
 
-4. Open the blade for the Stream Analytics job.
+1. Open the blade for the Stream Analytics job.
 
-5. Click **Start** to start the job. Select **Now** as the output start time. Wait for the job to start.
+1. Click **Start** to start the job. Select **Now** as the output start time. Wait for the job to start.
 
 ### Run the data generator
 
