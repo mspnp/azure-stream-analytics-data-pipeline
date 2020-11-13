@@ -32,7 +32,7 @@ The deployment uses [Azure Building Blocks](https://github.com/mspnp/template-bu
 
 1. Create a directory named `DataFile` in the GitHub repo.
 
-1. Open a web browser and navigate to https://uofi.app.box.com/v/NYCtaxidata/folder/2332219935.
+1. Open a web browser and navigate to <https://uofi.app.box.com/v/NYCtaxidata/folder/2332219935>.
 
 1. Click the **Download** button on this page to download a zip file of all the taxi data for that year.
 
@@ -42,13 +42,13 @@ The deployment uses [Azure Building Blocks](https://github.com/mspnp/template-bu
 
 The directory structure should look like the following:
 
-```
-        /DataFile
-            /FOIL2013
-                trip_data_1.zip
-                trip_data_2.zip
-                trip_data_3.zip
-                ...
+```output
+/DataFile
+    /FOIL2013
+        trip_data_1.zip
+        trip_data_2.zip
+        trip_data_3.zip
+        ...
 ```
 
 ### Deploy the Azure resources
@@ -59,7 +59,7 @@ The directory structure should look like the following:
     export resourceGroup='[Resource group name]'
     export resourceLocation='[Location]'
     export cosmosDatabaseAccount='[Cosmos DB account name]'
-    export cosmosDatabase='[Cosmod DB database name]'
+    export cosmosDatabase='[Cosmos DB database name]'
     export cosmosDataBaseCollection='[Cosmos DB collection name]'
     export eventHubNamespace='[Event Hubs namespace name]'
 
@@ -75,7 +75,7 @@ The directory structure should look like the following:
       outputCosmosDatabaseCollection=$cosmosDataBaseCollection \
       query='@./azure/average-tip-per-mile-pipeline.asaql'
 
-    # Create a database 
+    # Create a database
     az cosmosdb database create --name $cosmosDatabaseAccount \
         --db-name $cosmosDatabase --resource-group $resourceGroup
 
@@ -117,7 +117,7 @@ The directory structure should look like the following:
 
 3. Update the values in the file `main.env` as follows:
 
-    ```
+    ```output
     RIDE_EVENT_HUB=[Connection string for taxi-ride event hub]
     FARE_EVENT_HUB=[Connection string for taxi-fare event hub]
     RIDE_DATA_FILE_PATH=/DataFile/FOIL2013
@@ -145,7 +145,7 @@ The directory structure should look like the following:
 
 The output should look like the following:
 
-```
+```output
 Created 10000 records for TaxiFare
 Created 10000 records for TaxiRide
 Created 20000 records for TaxiFare
@@ -154,4 +154,4 @@ Created 30000 records for TaxiFare
 ...
 ```
 
-Let the program run for at least 5 minutes, which is the window defined in the Stream Analytics query. To verify the Stream Analytics job is running correctly, open the Azure portal and navigate to the Cosmos DB database. Open the **Data Explorer** blade and view the documents. 
+Let the program run for at least 5 minutes, which is the window defined in the Stream Analytics query. To verify the Stream Analytics job is running correctly, open the Azure portal and navigate to the Cosmos DB database. Open the **Data Explorer** blade and view the documents.
