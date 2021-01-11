@@ -4,7 +4,7 @@ Step1 AS (
            TRY_CAST(Medallion AS nvarchar(max)) AS Medallion,
            TRY_CAST(HackLicense AS nvarchar(max)) AS HackLicense,
            VendorId,
-           TRY_CAST(PickupTime AS datetime) AS PickupTime,
+           TRY_CASTpickup_datetime AS datetime) AS PickupTime,
            TripDistanceInMiles
     FROM [TaxiRide] PARTITION BY PartitionId
 ),
