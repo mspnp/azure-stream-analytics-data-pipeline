@@ -4,7 +4,7 @@ This reference architecture shows an end-to-end stream processing pipeline. The 
 
 ![](https://docs.microsoft.com/azure/architecture/reference-architectures/data/images/stream-processing-asa/stream-processing-asa.png)
 
-For more information about this reference architectures and guidance about best practices, see the article [Stream processing with Azure Stream Analytics](https://docs.microsoft.com/azure/architecture/reference-architectures/data/stream-processing-stream-analytics) on the Azure Architecture Center.
+For more information about this reference architecture and guidance about best practices, see the article [Stream processing with Azure Stream Analytics](https://docs.microsoft.com/azure/architecture/reference-architectures/data/stream-processing-stream-analytics) on the Azure Architecture Center.
 
 ## Deploy the solution 
 
