@@ -6,8 +6,6 @@ This reference architecture shows an end-to-end stream processing pipeline. The 
 
 For more information about this reference architectures and guidance about best practices, see the article [Stream processing with Azure Stream Analytics](https://docs.microsoft.com/azure/architecture/reference-architectures/data/stream-processing-stream-analytics) on the Azure Architecture Center.
 
-The deployment uses [Azure Building Blocks](https://github.com/mspnp/template-building-blocks/wiki) (azbb), a command line tool that simplifies deployment of Azure resources.
-
 ## Deploy the solution 
 
 ### Prerequisites
@@ -15,12 +13,6 @@ The deployment uses [Azure Building Blocks](https://github.com/mspnp/template-bu
 1. Clone, fork, or download the zip file for this repository.
 
 1. Install [Azure CLI 2.0](https://docs.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest).
-
-1. Install the [Azure building blocks](https://github.com/mspnp/template-building-blocks/wiki/Install-Azure-Building-Blocks) npm package.
-
-   ```bash
-   npm install -g @mspnp/azure-building-blocks
-   ```
 
 1. From a command prompt, bash prompt, or PowerShell prompt, sign into your Azure account as follows:
 
